@@ -9,6 +9,7 @@ namespace SteinsGateNSB_Extractor
 {
     public class NSB
     {
+        private static short _StringType = 216;
         public static List<string> Unpack(string input)
         {
             List<string> result = new List<string>();
@@ -16,16 +17,22 @@ namespace SteinsGateNSB_Extractor
             while (reader.BaseStream.Position < reader.BaseStream.Length)
             {
                 int index = reader.ReadInt32();
-                short unk = reader.ReadInt16();
+                short type = reader.ReadInt16();
                 short strCount = reader.ReadInt16();
                 if (strCount == 0) continue;
                 for (int i = 0; i < strCount; i++)
                 {
                     int strLen = reader.ReadInt32();
-                    string str = Encoding.Unicode.GetString(reader.ReadBytes(strLen));
-                    if (!str.StartsWith("<PRE")) continue;
-                    result.Add($"/*{index}-{i}*/");
-                    result.Add(str);
+                    if (type == _StringType)
+                    {
+                        string str = Encoding.Unicode.GetString(reader.ReadBytes(strLen));
+                        result.Add($"/*{index}-{i}*/");
+                        result.Add(str);
+                    }
+                    else
+                    {
+                        reader.BaseStream.Position += strLen;
+                    }
                 }
             }
             reader.Close();
@@ -65,10 +72,10 @@ namespace SteinsGateNSB_Extractor
             while (nsbReader.BaseStream.Position < nsbReader.BaseStream.Length)
             {
                 int index = nsbReader.ReadInt32();
-                short unk = nsbReader.ReadInt16();
+                short type = nsbReader.ReadInt16();
                 short strCount = nsbReader.ReadInt16();
                 writer.Write(index);
-                writer.Write(unk);
+                writer.Write(type);
                 writer.Write(strCount);
                 for (int i = 0; i < strCount; i++)
                 {

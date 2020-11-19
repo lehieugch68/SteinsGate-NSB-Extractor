@@ -84,7 +84,7 @@ namespace SteinsGateNSB_Extractor
                     string newStr;
                     if (dict.TryGetValue($"/*{index}-{i}*/", out newStr))
                     {
-                        byte[] utf8Bytes = Encoding.UTF8.GetBytes(newStr);
+                        byte[] utf8Bytes = Encoding.UTF8.GetBytes(newStr.Replace("\r", ""));
                         byte[] utf16Bytes = Encoding.Convert(Encoding.UTF8, Encoding.Unicode, utf8Bytes);
                         writer.Write(utf16Bytes.Length);
                         writer.Write(utf16Bytes);
